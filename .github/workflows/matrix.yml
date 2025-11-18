@@ -1,0 +1,40 @@
+name: Matrix Example Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false      # ← matrix ile aynı seviyede
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [16, 18, 20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Output job info
+        run: |
+          echo "Node version: ${{ matrix.node }}"
+          echo "Operating system: ${{ matrix.os }}"
